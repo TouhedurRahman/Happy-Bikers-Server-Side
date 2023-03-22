@@ -28,10 +28,29 @@ async function run() {
         })
 
         /*** getting a single bike from server to client by id ***/
-        app.get('/bikes/:id', async (req, res) => {
+        app.get('/updateItem/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await bikesCollection.findOne(query);
+            res.send(result);
+        })
+
+        /*** update bikes information ***/
+        app.put('/updateItem/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedProduct = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true }
+            const updatedBikeInfo = {
+                $set: {
+                    quantity: updatedProduct.updatedQuantity
+                }
+            }
+            const result = await bikesCollection.updateOne(
+                filter,
+                updatedBikeInfo,
+                options
+            );
             res.send(result);
         })
     }
