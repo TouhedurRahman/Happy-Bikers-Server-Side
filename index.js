@@ -52,6 +52,14 @@ async function run() {
                 options
             );
             res.send(result);
+
+            /*** delete bikes ***/
+            app.delete('/deleteItem/:id', async (req, res) => {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const result = await bikesCollection.deleteOne(query);
+                res.send(result);
+            })
         })
     }
     finally {
