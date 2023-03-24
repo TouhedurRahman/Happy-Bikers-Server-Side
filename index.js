@@ -19,6 +19,13 @@ async function run() {
     try {
         const bikesCollection = client.db('happy_bikers').collection('bikes');
 
+        /*** adding new bikes ***/
+        app.post('/bikes', async (req, res) => {
+            const bikes = req.body;
+            const result = await bikesCollection.insertOne(bikes);
+            res.send(bikes);
+        })
+
         /*** getting all bikes from server to client ***/
         app.get('/bikes', async (req, res) => {
             const query = {};
