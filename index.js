@@ -34,6 +34,15 @@ async function run() {
             res.send(result);
         })
 
+        /*** getting bikes added by the spacipic user ***/
+        app.get('/my-items', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = bikesCollection.find(query);
+            const myItems = await cursor.toArray();
+            res.send(myItems);
+        })
+
         /*** getting a single bike from server to client by id ***/
         app.get('/updateItem/:id', async (req, res) => {
             const id = req.params.id;
@@ -59,14 +68,14 @@ async function run() {
                 options
             );
             res.send(result);
+        })
 
-            /*** delete bikes ***/
-            app.delete('/deleteItem/:id', async (req, res) => {
-                const id = req.params.id;
-                const query = { _id: new ObjectId(id) };
-                const result = await bikesCollection.deleteOne(query);
-                res.send(result);
-            })
+        /*** delete bikes for all user ***/
+        app.delete('/deleteItem/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await bikesCollection.deleteOne(query);
+            res.send(result);
         })
     }
     finally {
