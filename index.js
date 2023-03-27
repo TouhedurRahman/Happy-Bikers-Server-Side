@@ -18,6 +18,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const bikesCollection = client.db('happy_bikers').collection('bikes');
+        const openionsCollection = client.db('happy_bikers').collection('openions');
 
         /*** adding new bikes ***/
         app.post('/bikes', async (req, res) => {
@@ -76,6 +77,13 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await bikesCollection.deleteOne(query);
             res.send(result);
+        })
+
+        /*** adding users openion ***/
+        app.post('/openions', async (req, res) => {
+            const openion = req.body;
+            const result = await openionsCollection.insertOne(openion);
+            res.send(openion);
         })
     }
     finally {
