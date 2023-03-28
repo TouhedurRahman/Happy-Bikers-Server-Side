@@ -19,6 +19,21 @@ async function run() {
     try {
         const bikesCollection = client.db('happy_bikers').collection('bikes');
         const openionsCollection = client.db('happy_bikers').collection('openions');
+        const usersCollection = client.db('happy_bikers').collection('users');
+
+        /*** adding new users ***/
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const email = { email: user.email };
+            const resgisteredEmail = await usersCollection.findOne(email);
+
+            if (!resgisteredEmail) {
+                const result = await usersCollection.insertOne(user);
+                res.send(result);
+            } else {
+                res.status(400).send('Email already exists');
+            }
+        })
 
         /*** adding new bikes ***/
         app.post('/bikes', async (req, res) => {
