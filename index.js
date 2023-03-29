@@ -16,6 +16,22 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.yrcmf.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        res.status(401).send('Unauthorized Access');
+    }
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN, function (error, decoded) {
+        if (error) {
+            return res.status(403).send({ message: 'forbidden acces' })
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
+
 async function run() {
     try {
         const bikesCollection = client.db('happy_bikers').collection('bikes');
@@ -65,12 +81,17 @@ async function run() {
         })
 
         /*** getting bikes added by the spacipic user ***/
-        app.get('/my-items', async (req, res) => {
+        app.get('/my-items', verifyJWT, async (req, res) => {
             const email = req.query.email;
-            const query = { email: email };
-            const cursor = bikesCollection.find(query);
-            const myItems = await cursor.toArray();
-            res.send(myItems);
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = bikesCollection.find(query);
+                const myItems = await cursor.toArray();
+                res.send(myItems);
+            } else {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
         })
 
         /*** getting a single bike from server to client by id ***/
